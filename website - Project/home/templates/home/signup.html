@@ -1,0 +1,17 @@
+{% extends "home/base.html" %}
+
+{% block content %}
+
+{{ error }}
+<form method="POST">
+
+    {{ form }}
+    <br>
+    {% csrf_token %}
+    <input type="submit" value="Submit" />
+</form>
+
+
+signup Page
+
+{% endblock %}

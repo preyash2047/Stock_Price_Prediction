@@ -2,28 +2,86 @@
 
 {% block content %}
 
-{{ message }}
-{{ error }}
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-10">
-            <h1>Watch List Stock</h1>
+    <div class="row justify-content-center mt-5 text-center">
+        <div class="col-md-10 p-3">
+            <h1>Holdings</h1>
         </div>
     </div>
-    <div class="row justify-content-center mt-5">
+    <div class="row justify-content-center mt-7 text-center">
+        {% if message %}
+        <div class="alert alert-success" role="alert">
+          {{ message }}
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="alert alert-success" role="alert">
+        {{ error }}
+        </div>
+        {% endif %}
+    </div>
+
+
+
+    <form method="post" class="row justify-content-center">
+        {{ form.as_p }}
+        <input class="form-control col-md-5 text-center" type="text" placeholder="Enter Yahoo Finance Symbol" name="symbol"/>
+        {% csrf_token %}
+        <br class="form-control col-md-1" />
+        <input type="submit" class="form-control col-md-2 btn btn-info" value="Submit" />
+    </form>
+
+    <div class="row justify-content-center mt-3 row">
         <div class="col-md-10">
         {% if watchlist_stock %}
-            <div class="list-group">
-                {% for stock in watchlist_stock %}
-                {{ stock.symbol }}
-                {% endfor %}
+            <form method="post" class="row justify-content-center " action="{% url 'update_stock_price' %}">
+                {% csrf_token %}
+                <input type="submit" value="Update Stock Price" class="form-control col-md-4 btn-info"/>
+            </form>
+            <br class="p-2">
+            <div class="list-group form-group p-4 m-2">
+                <ul class="list-group form-group text-center table">
+                    {% for stock in watchlist_stock %}
+                      <li class="list-group-item justify-content-center">
+                          <div class="row">
+                              <div class="col-1">
+                                  {{ stock.symbol }}
+                              </div>
+                              <div class="col-5">
+                                  {{ stock.price }}
+                              </div>
+                              <div class="col">
+                                <form method="post" action="{% url 'buy' stock.id %}">
+                                    {% csrf_token %}
+                                    <input type="submit" class="btn btn-info" value="Buy" />
+                                </form>
+                              </div>
+                              <div class="col">
+                                <form method="post" action="{% url 'sell' stock.id %}">
+                                    {% csrf_token %}
+                                    <input type="submit" class="btn btn-info" value="Sell" />
+                                </form>
+                              </div>
+                              <div class="col">
+                                  <form method="post" action="{% url 'remove_from_watchlist' stock.id %}">
+                                      {% csrf_token %}
+                                      <input type="submit" value="Remove" class="btn btn-info"/>
+                                  </form>
+                              </div>
+                          </div>
+                      </li>
+                    {% endfor %}
+                </ul>
+                <br>
             </div>
         {% else %}
-            <div class="text-center">
-                <h2>Looks like you don't have any Stocks in Watchlist!.</h2>
+
+            <div class="text-center p-5">
+                <h2>Looks like you don't have any Stocks in Holding!.</h2>
             </div>
+
         {% endif %}
         </div>
     </div>
-
 
 {% endblock %}

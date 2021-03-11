@@ -8,18 +8,16 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-
-    <link rel="icon" type="image/png"  href="{% static 'todo/logo.png' %}">
-    <title>SPP</title>
+    <link rel="icon" type="image/png"  href="{% static 'home/logo.png' %}">
+    <title>Stockme.here</title>
 </head>
 <body>
 
-
-<nav class="navbar navbar-expand-md navbar-light bg-warning">
+<nav class="navbar navbar-expand-md navbar-light bg-info">
 <div class="container">
     <a class="navbar-brand" href="{% url 'home' %}">
-         <img src="{% static 'todo/logo.png' %}" width="30" height="30" class="d-inline-block align-top">
-        <span>SPP</span>
+         <img src="{% static 'home/logo.png' %}" width="30" height="30" class="d-inline-block align-top">
+        <span>Stockme.here</span>
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -27,7 +25,6 @@
     <div class="collapse navbar-collapse" id="navbarNav">
     {% if user.is_authenticated %}
         <ul class="navbar-nav mr-auto">
-
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'watchlist' %}">Watchlist</a>
                 </li>
@@ -36,9 +33,6 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'predictions' %}">Predictions</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'funds' %}">Funds</a>
                 </li>
         </ul>
     {% endif %}

@@ -2,6 +2,28 @@
 
 {% block content %}
 
+{{ message }}
 {{ error }}
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-10">
+            <h1>Watch List Stock</h1>
+        </div>
+    </div>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-10">
+        {% if watchlist_stock %}
+            <div class="list-group">
+                {% for stock in watchlist_stock %}
+                {{ stock.symbol }}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center">
+                <h2>Looks like you don't have any Stocks in Watchlist!.</h2>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+
 
 {% endblock %}

@@ -1,7 +1,52 @@
 {% extends "home/base.html" %}
 
 {% block content %}
-
+{{ message }}
 {{ error }}
+<form method="post">
+    {{ form.as_p }}
+    <input type="text" placeholder="Enter Yahoo Finance Symbol" name="symbol"/>
+    {% csrf_token %}
+    <input type="submit" value="Submit" />
+</form>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-10">
+            <h1>Watch List Stock</h1>
+        </div>
+    </div>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-10">
+        {% if watchlist_stock %}
+            <form method="post", action="{% url 'update_stock_price' %}">
+                {% csrf_token %}
+                <input type="submit" value="Update Stock Price" />
+            </form>
+            <div class="list-group">
+                {% for stock in watchlist_stock %}
+                {{ stock.symbol }}
+                {{ stock.price }}
+                <form method="post", action="{% url 'remove_from_watchlist' stock.id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="Delete" />
+                </form>
+                <form method="post", action="{% url 'buy' stock.id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="Buy" />
+                </form>
+                <form method="post", action="{% url 'sell' stock.id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="Sell" />
+                </form>
+                <br>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center">
+                <h2>Looks like you don't have any Stocks in Watchlist!.</h2>
+            </div>
+        {% endif %}
+        </div>
+    </div>
 
 {% endblock %}

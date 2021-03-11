@@ -29,4 +29,8 @@ urlpatterns = [
     path('holdings/', views.holdings, name="holdings"),
     path('predictions/', views.predictions, name="predictions"),
     path('funds/', views.funds, name="funds"),
+    path('update_stock_price/', views.update_stock_price, name="update_stock_price"),
+    path('remove_from_watchlist/<int:DataModel_pk>', views.remove_from_watchlist, name="remove_from_watchlist"),
+    path('buy/<int:DataModel_pk>', views.buy, name="buy"),
+    path('sell/<int:DataModel_pk>', views.sell, name="sell"),
 ]

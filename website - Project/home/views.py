@@ -327,6 +327,11 @@ def predictions(request):
         start_month = 1
         start_day = 1
         code = request.POST["symbol"]
-        predicted_price = predict_stock_price(start_year, start_month, start_day, code)
-        predicted_price = int(predicted_price)
-        return render(request, "home/predictions.html", {"error": "", "predicted_price":predicted_price})
+        try:
+            predicted_price = predict_stock_price(start_year, start_month, start_day, code)
+            predicted_price = round(float(predicted_price),2)
+            message = code + "'s predicted price is " + str(predicted_price) + " for next trading day."
+            return render(request, "home/predictions.html", {"error": "", "stock_message": message})
+        except :
+            message = "You have entered wrong Stock. Enter stock code as per yahoo finance"
+            return render(request, "home/predictions.html", {"error": "", "message" : message})

@@ -3,14 +3,11 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required
-import time
+
 #!pip install yfinance
 import yfinance as yf
 from .forms import DataModelForm
 from .models import DataModel
-
-#from django.contrib.auth.forms import
 
 
 # Create your views here.
@@ -59,32 +56,25 @@ def remove_from_watchlist(request, DataModel_pk):
     else:
         message = "error"
 
-    return redirect("watchlist") #, {"message": message})
+    return redirect("watchlist")
 
 
 def update_stock_price(request):
     stocks = DataModel.objects.filter(user=request.user)
     for stock in stocks:
-        stock.price = yf.Ticker(stock.symbol).info['ask']
-        if stock.price == 0.0:
-            stock.price = yf.Ticker(stock.symbol).info['previousClose']
+        stock.price = yf.Ticker(stock.symbol).info['regularMarketPrice']
         stock.save()
     return redirect("watchlist")
 
 
 def watchlist(request):
     watchlist_stock = DataModel.objects.filter(user=request.user)
-    #watchlist_stock = {symbol : str(yf.Ticker(symbol).info['ask']) for symbol in list_of_stock}
-    #print(watchlist_stock)
     if request.method == "GET":
         return render(request, "home/watchlist.html", {"error": "", "form": "", "watchlist_stock":watchlist_stock})
     else:
         if request.method == "POST":
             try:
-                tempVal = yf.Ticker(request.POST["symbol"]).info['ask']
-                if tempVal == 0.0:
-                    tempVal = yf.Ticker(request.POST["symbol"]).info['previousClose']
-
+                tempVal = yf.Ticker(request.POST["symbol"]).info['regularMarketPrice']
                 form = DataModelForm({
                     "qty": 0,
                     "avgCost":0,
@@ -95,14 +85,14 @@ def watchlist(request):
                 newStock = form.save(commit=False)
                 newStock.user = request.user
                 newStock.save()
+            except:
                 return render(request, "home/watchlist.html", {"error": "",
                                                                "message":"Stock added to Watchlist",
                                                                "watchlist_stock":watchlist_stock
                                                                })
-            except:
                 return render(request, "home/watchlist.html", {
                     "error": "Invalid Input! Enter Yahoo Finance Code.",
-                "watchlist_stock":watchlist_stock
+                    "watchlist_stock":watchlist_stock
                 })
 
         else:
@@ -110,34 +100,28 @@ def watchlist(request):
                                                            "watchlist_stock": watchlist_stock
                                                            })
 
-def buy(request,DataModel_pk):
-    stock = DataModel.objects.filter(user=request.user).get(pk=DataModel_pk)
-    stock.qty += request.qty
-    stock.save()
-    print(stock)
-    return render(request, "home/transaction.html", {
-        "BuySell":"buy",
-        "error":"",
-        "message":""
-    })
 
-def sell(request,DataModel_pk):
-    return render(request, "home/transaction.html", {
-        "BuySell":"buy",
-        "error":"",
-        "message":""
-    })
-
-
+def transaction(request):
+    if request.method == "GET":
+        stock = DataModel.objects.filter(user=request.user)
+        return render(request, "home/transaction.html", {"stock":stock})
+    else:
+        stock = DataModel.objects.filter(user=request.user).get(pk=request.POST["id"])
+        stock.avgCost = round(((stock.avgCost * stock.qty) + float(request.POST["price"]) * int(request.POST["qty"]) ) / (stock.qty + int(request.POST["qty"]) ),2)
+        if request.POST["transaction"] == "buy":
+            stock.qty += int(request.POST["qty"])
+        else:
+            stock.qty -= int(request.POST["qty"])
+            if stock.qty < 0:
+                return render(request, "home/transaction.html", {
+                    "error": "Invalid Stock Quantity"
+                })
+        stock.save()
+        return redirect("holdings")
 
 def holdings(request):
-    holding_stock = DataModel.objects.filter(user=request.user)
+    holding_stock = DataModel.objects.filter(user=request.user, qty__gt=0)
     return render(request, "home/holdings.html", {"error": "", "form": "", "holding_stock": holding_stock})
 
 def predictions(request):
-    return render(request, "home/predictions.html",
-                  {"error": "predictions pending"})
-
-def funds(request):
-    return render(request, "home/funds.html",
-                  {"error": "funds pending"})
+    return render(request, "home/predictions.html", {"error": "predictions pending"})

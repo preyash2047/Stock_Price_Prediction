@@ -13,3 +13,6 @@ class DataModel(Model):
 
     def __str__(self):
         return self.symbol
+
+    class Meta:
+        db_table = "datamodel_table"

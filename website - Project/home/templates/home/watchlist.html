@@ -34,10 +34,16 @@
     <div class="row justify-content-center mt-3 row">
         <div class="col-md-10">
         {% if watchlist_stock %}
-            <form method="post" class="row justify-content-center " action="{% url 'update_stock_price' %}">
+            <div class="row justify-content-center">
+            <form method="post" action="{% url 'update_stock_price' %}">
                 {% csrf_token %}
-                <input type="submit" value="Update Stock Price" class="form-control col-md-4 btn-info"/>
+                <input type="submit" value="Update Price" class="form-control col btn-info"/>
             </form>
+                <p class="col-1"></p>
+            <form method="GET" action="{% url 'transaction' %}">
+                <input type="submit" value="Buy/Sell" class="form-control col-12 btn-info"/>
+            </form>
+                </div>
             <br class="p-2">
             <div class="list-group form-group p-4 m-2">
                 <ul class="list-group form-group text-center table">
@@ -49,18 +55,6 @@
                               </div>
                               <div class="col-5">
                                   {{ stock.price }}
-                              </div>
-                              <div class="col">
-                                <form method="post" action="{% url 'buy' stock.id %}">
-                                    {% csrf_token %}
-                                    <input type="submit" class="btn btn-info" value="Buy" />
-                                </form>
-                              </div>
-                              <div class="col">
-                                <form method="post" action="{% url 'sell' stock.id %}">
-                                    {% csrf_token %}
-                                    <input type="submit" class="btn btn-info" value="Sell" />
-                                </form>
                               </div>
                               <div class="col">
                                   <form method="post" action="{% url 'remove_from_watchlist' stock.id %}">
@@ -83,5 +77,4 @@
         {% endif %}
         </div>
     </div>
-
 {% endblock %}

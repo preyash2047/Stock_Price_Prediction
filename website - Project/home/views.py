@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
 
 #!pip install yfinance
 import yfinance as yf
@@ -209,6 +210,7 @@ def predict_stock_price(start_year, start_month, start_day, code):
 def home(request):
     return render(request, "home/home.html")
 
+
 def signup(request):
     if request.method == "GET":
         return render(request,"home/signup.html", {"form":UserCreationForm()})
@@ -226,6 +228,7 @@ def signup(request):
             return render(request, "home/signup.html", {"form": UserCreationForm(),
                           "error": "Password did not match"})
 
+
 def userlogin(request):
     if request.method == "GET":
         return render(request, "home/userlogin.html", {"form":AuthenticationForm()})
@@ -237,11 +240,13 @@ def userlogin(request):
             login(request, user)
             return redirect("home")
 
+@login_required
 def logoutuser(request):
     if request.method == "POST":
         logout(request)
         return redirect("home")
 
+@login_required
 def remove_from_watchlist(request, DataModel_pk):
     temp_data = DataModel.objects.filter(user=request.user).get(pk=DataModel_pk)
     if temp_data.qty == 0:
@@ -252,6 +257,7 @@ def remove_from_watchlist(request, DataModel_pk):
 
     return redirect("watchlist")
 
+@login_required
 def update_stock_price(request):
     stocks = DataModel.objects.filter(user=request.user)
     for stock in stocks:
@@ -259,6 +265,7 @@ def update_stock_price(request):
         stock.save()
     return redirect("watchlist")
 
+@login_required
 def watchlist(request):
     watchlist_stock = DataModel.objects.filter(user=request.user)
     if request.method == "GET":
@@ -292,6 +299,7 @@ def watchlist(request):
                                                            "watchlist_stock": watchlist_stock
                                                            })
 
+@login_required
 def transaction(request):
     if request.method == "GET":
         stock = DataModel.objects.filter(user=request.user)
@@ -310,10 +318,12 @@ def transaction(request):
         stock.save()
         return redirect("holdings")
 
+@login_required
 def holdings(request):
     holding_stock = DataModel.objects.filter(user=request.user, qty__gt=0)
     return render(request, "home/holdings.html", {"error": "", "form": "", "holding_stock": holding_stock})
 
+@login_required
 def predictions(request):
     if request.method == "GET":
         return render(request, "home/predictions.html")

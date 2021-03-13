@@ -226,7 +226,6 @@ def signup(request):
             return render(request, "home/signup.html", {"form": UserCreationForm(),
                           "error": "Password did not match"})
 
-
 def userlogin(request):
     if request.method == "GET":
         return render(request, "home/userlogin.html", {"form":AuthenticationForm()})
@@ -253,14 +252,12 @@ def remove_from_watchlist(request, DataModel_pk):
 
     return redirect("watchlist")
 
-
 def update_stock_price(request):
     stocks = DataModel.objects.filter(user=request.user)
     for stock in stocks:
         stock.price = yf.Ticker(stock.symbol).info['regularMarketPrice']
         stock.save()
     return redirect("watchlist")
-
 
 def watchlist(request):
     watchlist_stock = DataModel.objects.filter(user=request.user)
@@ -294,7 +291,6 @@ def watchlist(request):
             return render(request, "home/watchlist.html", {"error": "",
                                                            "watchlist_stock": watchlist_stock
                                                            })
-
 
 def transaction(request):
     if request.method == "GET":

@@ -284,6 +284,10 @@ def watchlist(request):
                 newStock = form.save(commit=False)
                 newStock.user = request.user
                 newStock.save()
+                return render(request, "home/watchlist.html", {"error": "",
+                                                               "message": "Stock added to Watchlist",
+                                                               "watchlist_stock": watchlist_stock
+                                                               })
             except:
                 return render(request, "home/watchlist.html", {"error": "",
                                                                "message":"Stock added to Watchlist",

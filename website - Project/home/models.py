@@ -7,7 +7,7 @@ class DataModel(Model):
     symbol = models.CharField(max_length = 50)
     qty = models.IntegerField(max_length=10, default=0)
     avgCost = models.FloatField(max_length=10, default=0)
-    price = models.FloatField(max_length=10, default=0)
+    price = models.FloatField(max_length=10,default=0)
     created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete = models.CASCADE)
 

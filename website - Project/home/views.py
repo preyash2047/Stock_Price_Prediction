@@ -5,10 +5,17 @@ from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 
-#!pip install yfinance
-import yfinance as yf
+#https://rapidapi.com/lattice-data-lattice-data-default/api/stock-market-data?endpoint=apiendpoint_58e7545e-9d80-4184-9169-e7bcf88ee15a
 from .forms import DataModelForm
 from .models import DataModel
+import http.client
+
+conn = http.client.HTTPSConnection("stock-market-data.p.rapidapi.com")
+
+headers = {
+    'x-rapidapi-key': "845b1ec26fmsh9303f9df5782b02p1f891bjsne57ff9050fbd",
+    'x-rapidapi-host': "stock-market-data.p.rapidapi.com"
+    }
 
 from pandas_datareader import data, wb
 import pandas as pd
@@ -257,11 +264,21 @@ def remove_from_watchlist(request, DataModel_pk):
 
     return redirect("watchlist")
 
+def get_stock_price(stock_code):
+    try:
+        conn.request("GET", "/stock/quote?ticker_symbol=" + str(stock_code), headers=headers)
+        res = conn.getresponse()
+        data = res.read()
+        data = eval(data)
+        return data["quote"]["Current Price"]
+    except:
+        return False
+
 @login_required
 def update_stock_price(request):
     stocks = DataModel.objects.filter(user=request.user)
     for stock in stocks:
-        stock.price = yf.Ticker(stock.symbol).info['regularMarketPrice']
+        stock.price = get_stock_price(stock)
         stock.save()
     return redirect("watchlist")
 
@@ -273,31 +290,35 @@ def watchlist(request):
     else:
         if request.method == "POST":
             try:
-                tempVal = yf.Ticker(request.POST["symbol"]).info['regularMarketPrice']
-                form = DataModelForm({
-                    "qty": 0,
-                    "avgCost":0,
-                    "symbol": request.POST["symbol"],
-                    "price": tempVal,
-                    "csrfmiddlewaretoken": request.POST["csrfmiddlewaretoken"]
-                })
-                newStock = form.save(commit=False)
-                newStock.user = request.user
-                newStock.save()
-                return render(request, "home/watchlist.html", {"error": "",
-                                                               "message": "Stock added to Watchlist",
-                                                               "watchlist_stock": watchlist_stock
-                                                               })
+                tempVal = get_stock_price(request.POST["symbol"])
+                if tempVal == False:
+                    raise Exception("Invalid Stock Code")
+                else:
+                    form = DataModelForm({
+                        "qty": 0,
+                        "avgCost": 0,
+                        "symbol": request.POST["symbol"],
+                        "price": tempVal,
+                        "csrfmiddlewaretoken": request.POST["csrfmiddlewaretoken"]
+                    })
+                    newStock = form.save(commit=False)
+                    newStock.user = request.user
+                    newStock.save()
+                    #updating stock price
+                    for stock in watchlist_stock:
+                        if stock.symbol == request.POST["symbol"]:
+                            stock.price = tempVal
+                            stock.save()
+                    print("before render")
+                    return render(request, "home/watchlist.html", {"error": "",
+                                                                   "message": "Stock added to Watchlist",
+                                                                   "watchlist_stock": watchlist_stock
+                                                                   })
             except:
                 return render(request, "home/watchlist.html", {"error": "",
-                                                               "message":"Stock added to Watchlist",
+                                                               "message":"Invalid Stock Code!",
                                                                "watchlist_stock":watchlist_stock
                                                                })
-                return render(request, "home/watchlist.html", {
-                    "error": "Invalid Input! Enter Yahoo Finance Code.",
-                    "watchlist_stock":watchlist_stock
-                })
-
         else:
             return render(request, "home/watchlist.html", {"error": "",
                                                            "watchlist_stock": watchlist_stock

@@ -25,7 +25,7 @@
 
     <form method="post" class="row justify-content-center">
         {{ form.as_p }}
-        <input class="form-control col-md-5 text-center" type="text" placeholder="Enter Yahoo Finance Symbol" name="symbol"/>
+        <input class="form-control col-md-5 text-center" type="text" placeholder="Enter Finance Symbol ending with .BSE" name="symbol"/>
         {% csrf_token %}
         <br class="form-control col-md-1" />
         <input type="submit" class="form-control col-md-2 btn btn-info" value="Submit" />

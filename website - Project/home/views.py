@@ -10,12 +10,52 @@ from .forms import DataModelForm
 from .models import DataModel
 import http.client
 
+#stock-market api
+"""
 conn = http.client.HTTPSConnection("stock-market-data.p.rapidapi.com")
 
+#preyash2047@gmail.com
 headers = {
     'x-rapidapi-key': "845b1ec26fmsh9303f9df5782b02p1f891bjsne57ff9050fbd",
     'x-rapidapi-host': "stock-market-data.p.rapidapi.com"
     }
+
+
+#parth21041997@gmail.com
+headers = {
+    'x-rapidapi-key': "9576b21d89msh826c4a75d8b996fp1b1994jsn22f89fede67c",
+    'x-rapidapi-host': "stock-market-data.p.rapidapi.com"
+    }
+def get_stock_price(stock_code):
+    try:
+        conn.request("GET", "/stock/quote?ticker_symbol=" + str(stock_code), headers=headers)
+        res = conn.getresponse()
+        data = res.read()
+        data = eval(data)
+        return data["quote"]["Current Price"]
+    except:
+        return False
+
+"""
+#alpha vantage api
+#https://rapidapi.com/alphavantage/api/alpha-vantage/endpoints
+#point2104.........
+conn = http.client.HTTPSConnection("alpha-vantage.p.rapidapi.com")
+
+headers = {
+    'x-rapidapi-key': "9576b21d89msh826c4a75d8b996fp1b1994jsn22f89fede67c",
+    'x-rapidapi-host': "alpha-vantage.p.rapidapi.com"
+    }
+
+def get_stock_price(stock_code):
+    try:
+        conn.request("GET", "/query?function=GLOBAL_QUOTE&symbol="  + str(stock_code), headers=headers)
+        res = conn.getresponse()
+        data = res.read()
+        data = eval(data)
+        return data["Global Quote"]["05. price"]
+    except:
+        return False
 
 from pandas_datareader import data, wb
 import pandas as pd
@@ -264,16 +304,6 @@ def remove_from_watchlist(request, DataModel_pk):
 
     return redirect("watchlist")
 
-def get_stock_price(stock_code):
-    try:
-        conn.request("GET", "/stock/quote?ticker_symbol=" + str(stock_code), headers=headers)
-        res = conn.getresponse()
-        data = res.read()
-        data = eval(data)
-        return data["quote"]["Current Price"]
-    except:
-        return False
-
 @login_required
 def update_stock_price(request):
     stocks = DataModel.objects.filter(user=request.user)
@@ -290,7 +320,9 @@ def watchlist(request):
     else:
         if request.method == "POST":
             try:
+                print("In try ")
                 tempVal = get_stock_price(request.POST["symbol"])
+                print(tempVal)
                 if tempVal == False:
                     raise Exception("Invalid Stock Code")
                 else:

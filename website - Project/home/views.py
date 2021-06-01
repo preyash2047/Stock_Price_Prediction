@@ -11,7 +11,7 @@ from .models import DataModel
 import http.client
 
 #stock-market api
-"""
+
 conn = http.client.HTTPSConnection("stock-market-data.p.rapidapi.com")
 
 #preyash2047@gmail.com
@@ -56,7 +56,8 @@ def get_stock_price(stock_code):
         return data["Global Quote"]["05. price"]
     except:
         return False
-
+    
+"""
 from pandas_datareader import data, wb
 import pandas as pd
 import numpy as np
